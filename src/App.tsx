@@ -15,11 +15,13 @@ import { SettingsScreen } from './components/SettingsScreen';
 import { AllTasksScreen } from './components/AllTasksScreen';
 import { ActiveTasksScreen } from './components/ActiveTasksScreen';
 import { NewTaskModal } from './components/NewTaskModal';
+import { useTasks } from './context/TaskContext';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('dashboard');
   const [currentTransition, setCurrentTransition] = useState<TransitionType>('push');
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const { addTask } = useTasks();
 
   const navigateTo = (screen: ScreenType, transition: TransitionType = 'push') => {
     if (screen === currentScreen) return;
@@ -32,24 +34,24 @@ export default function App() {
     switch (type) {
       case 'push':
         return {
-          initial: { x: 40, opacity: 0 },
+          initial: { x: 30, opacity: 0 },
           animate: { x: 0, opacity: 1 },
-          exit: { x: -40, opacity: 0 },
-          transition: { duration: 0.22, ease: 'easeOut' },
+          exit: { x: -30, opacity: 0 },
+          transition: { duration: 0.2, ease: 'easeOut' },
         };
       case 'push_back':
         return {
-          initial: { x: -40, opacity: 0 },
+          initial: { x: -30, opacity: 0 },
           animate: { x: 0, opacity: 1 },
-          exit: { x: 40, opacity: 0 },
-          transition: { duration: 0.22, ease: 'easeOut' },
+          exit: { x: 30, opacity: 0 },
+          transition: { duration: 0.2, ease: 'easeOut' },
         };
       case 'slide_up':
         return {
-          initial: { y: 60, opacity: 0 },
+          initial: { y: 40, opacity: 0 },
           animate: { y: 0, opacity: 1 },
-          exit: { y: -40, opacity: 0 },
-          transition: { duration: 0.28, ease: 'easeOut' },
+          exit: { y: -30, opacity: 0 },
+          transition: { duration: 0.25, ease: 'easeOut' },
         };
       case 'none':
       default:
@@ -77,6 +79,12 @@ export default function App() {
       <div className="lg:pl-72 flex flex-col min-h-screen">
         <Header
           onOpenSettings={() => navigateTo('settings', 'push')}
+          onNavigateToOverdue={() => navigateTo('overdue-tasks', 'push')}
+          onSearch={() => {
+            if (currentScreen !== 'all-tasks') {
+              navigateTo('all-tasks', 'push');
+            }
+          }}
         />
 
         <main className="relative pt-20 pb-32 lg:pb-lg flex-1 overflow-x-hidden">
@@ -124,7 +132,8 @@ export default function App() {
         isOpen={isNewTaskModalOpen}
         onClose={() => setIsNewTaskModalOpen(false)}
         onSubmit={(task) => {
-          console.log('New task created:', task);
+          addTask(task);
+          setIsNewTaskModalOpen(false);
           navigateTo('all-tasks', 'slide_up');
         }}
       />

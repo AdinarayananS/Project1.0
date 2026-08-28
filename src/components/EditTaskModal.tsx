@@ -1,32 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Task } from '../context/TaskContext';
 
-interface NewTaskModalProps {
+interface EditTaskModalProps {
   isOpen: boolean;
+  task: Task | null;
   onClose: () => void;
-  onSubmit: (task: {
-    title: string;
-    description: string;
-    category: string;
-    priority: string;
-    dueDate: string;
-  }) => void;
+  onSave: (id: string, updates: Partial<Task>) => void;
 }
 
-export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onSubmit }) => {
+export const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, onSave }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Work');
   const [priority, setPriority] = useState('Medium');
-  const [dueDate, setDueDate] = useState('Today, 5:00 PM');
+  const [dueDate, setDueDate] = useState('');
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description || '');
+      setCategory(task.category);
+      setPriority(task.priority);
+      setDueDate(task.dueDate);
+    }
+  }, [task]);
+
+  if (!isOpen || !task) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onSubmit({ title, description, category, priority, dueDate });
-    setTitle('');
-    setDescription('');
+    onSave(task.id, {
+      title: title.trim(),
+      description: description.trim(),
+      category: category as any,
+      priority: priority as any,
+      dueDate: dueDate.trim() || 'Today, 5:00 PM',
+    });
     onClose();
   };
 
@@ -41,18 +51,18 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onS
         className="bg-surface text-on-surface rounded-3xl p-6 sm:p-8 w-full max-w-[560px] max-h-[90vh] overflow-y-auto shadow-2xl border border-outline-variant/30 flex flex-col gap-6 animate-fade-in my-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
+        {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-outline-variant/20">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[24px]">add_task</span>
+              <span className="material-symbols-outlined text-[24px]">edit_note</span>
             </div>
             <div>
               <h3 className="font-headline-md text-on-surface text-lg sm:text-xl font-semibold">
-                Add New Task
+                Edit Task
               </h3>
               <p className="font-body-md text-on-surface-variant text-xs sm:text-sm">
-                Create and schedule a task in your workspace
+                Update task details and deadlines
               </p>
             </div>
           </div>
@@ -66,7 +76,7 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onS
           </button>
         </div>
 
-        {/* Task Form */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="font-label-md text-on-surface-variant text-xs font-medium">
@@ -75,7 +85,6 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onS
             <input
               type="text"
               required
-              placeholder="e.g. Prepare Q3 Budget Deck"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl px-4 py-2.5 text-body-md text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
@@ -88,7 +97,6 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onS
             </label>
             <textarea
               rows={3}
-              placeholder="Brief details about what needs to be done..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl px-4 py-2.5 text-body-md text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-y min-h-[80px] transition-all"
@@ -172,8 +180,8 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onS
               type="submit"
               className="px-6 py-2.5 bg-primary text-on-primary rounded-xl font-label-md text-sm font-semibold shadow-md shadow-primary/20 hover:bg-primary/90 active:scale-[0.98] transition-all cursor-pointer flex items-center gap-2"
             >
-              <span className="material-symbols-outlined text-[18px]">check</span>
-              Create Task
+              <span className="material-symbols-outlined text-[18px]">save</span>
+              Save Changes
             </button>
           </div>
         </form>
