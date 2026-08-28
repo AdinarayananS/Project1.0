@@ -1,0 +1,6 @@
+{
+  "name": "Focus - Task & Productivity Manager",
+  "description": "A multi-screen task management and productivity dashboard featuring focused daily workflows, overdue tracking, active sprint progress, and customizable settings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
